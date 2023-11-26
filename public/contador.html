@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Contador de Calorias</title>
+</head>
+<body>
+    <h1>Contador de Calorias</h1>
+    <div id="nomePerfil"></div>
+    <input type="text" id="nomeAlimento" placeholder="Nome do alimento">
+    <button id="btnBuscar">Buscar Calorias</button>
+    <button id="btnBuscareConfirmar">Buscar e Confirmar</button>
+    <button id="btnCaloriasConsumidas">Verificar consumo diário</button>
+    <div id="resultado"></div>
+    <div id="caloriasConsumidas"></div>
+    <div id="caloriasTotais"></div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Função para obter o ID do usuário
+        function obterIdDoUsuario(callback) {
+            $.get('/usuarios/usuario-info')
+                .done(function(response) {
+                    callback(response.userId);
+                })
+                .fail(function(error) {
+                    console.log('Erro ao obter ID do usuário:', error);
+                });
+        }
+
+        $(document).ready(function() {
+            
+            function carregarNomeDoUsuario() {
+                $.get('/usuarios/usuario-info')
+                    .done(function(response) {
+                        $('#nomePerfil').text('Olá, ' + response.nomeUsuario + '!');
+                    })
+                    .fail(function(error) {
+                        console.log('Erro ao obter nome do usuário:', error);
+                    });
+            }
+
+            function adicionarCalorias(usuarioId, caloriasConsumidas) {
+                const dataAtual = new Date().toISOString().split('T')[0];
+                $.ajax({
+                    url: '/alimentos/pesquisareConfirmar',
+                    type: 'GET',
+                    dataType: 'json',
+                    data: { nome: $('#nomeAlimento').val(), userId: usuarioId },
+                    success: function(data) {
+                        console.log(data); // Verifique se os dados estão corretos
+                        obterCaloriasTotais(usuarioId); // Atualiza as calorias totais após adicionar
+                        obterCaloriasConsumidas(usuarioId); // Atualiza as calorias consumidas após adicionar
+                    },
+                    error: function(error) {
+                        console.log('Erro na solicitação AJAX: ' + error);
+                    }
+                });
+            }
+
+            function obterCaloriasConsumidas(usuarioId) {
+                $.get(`/alimentos/calorias/${usuarioId}/data`)
+                    .done(function(response) {
+                        $('#caloriasConsumidas').text('Calorias consumidas hoje: ' + response.caloriasConsumidas);
+                    })
+                    .fail(function(error) {
+                        console.log('Erro ao obter calorias consumidas:', error);
+                    });
+            }
+
+            carregarNomeDoUsuario();
+
+            $('#btnBuscar').click(function() {
+                obterIdDoUsuario(function(usuarioId) {
+                    const nomeAlimento = $('#nomeAlimento').val();
+                    $.ajax({
+                        url: '/alimentos/pesquisar',
+                        type: 'GET',
+                        dataType: 'json',
+                        data: { naame: nomeAlimento, userId: usuarioId },
+                        success: function(data) {
+                            $('#resultado').text('Calorias: ' + data.calorias);
+                        },
+                        error: function(error) {
+                            console.log('Erro na solicitação AJAX: ' + error);
+                        }
+                    });
+                });
+            });
+
+            $('#btnBuscareConfirmar').click(function() {
+                obterIdDoUsuario(function(usuarioId) {
+                    const nomeAlimento = $('#nomeAlimento').val();
+                    $.ajax({
+                        url: '/alimentos/pesquisareConfirmar',
+                        type: 'GET',
+                        dataType: 'json',
+                        data: { nome: nomeAlimento, userId: usuarioId },
+                        success: function(data) {
+                            $('#resultado').text('Calorias: ' + data.calorias);
+                            obterCaloriasConsumidas(usuarioId);
+                            adicionarCalorias(usuarioId, data.calorias);
+                        },
+                        error: function(error) {
+                            console.log('Erro na solicitação AJAX: ' + error);
+                        }
+                    });
+                });
+            });
+            $('#btnCaloriasConsumidas').click(function() {
+                obterIdDoUsuario(function(usuarioId) {
+                    $.get(`/alimentos/calorias/${usuarioId}/data`)
+                        .done(function(response) {
+                            $('#caloriasConsumidas').text('Calorias consumidas hoje: ' + response.caloriasConsumidas);
+                        })
+                        .fail(function(error) {
+                            console.log('Erro ao obter calorias consumidas:', error);
+                        });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,7 +1,78 @@
+<!DOCTYPE html>
 <html>
-<head></head>
+<head>
+  <title>Contador de Calorias</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#btnBuscar').click(function() {
+        const nomeAlimento = $('#nomeAlimento').val();
+
+        // Faz a solicitação ao servidor Node.js para buscar as calorias
+        $.ajax({
+          url: '/alimentos/pesquisar',
+          type: 'GET',
+          dataType: 'json',
+          data: { naame: nomeAlimento },
+          success: function(data) {
+            $('#resultado').text('Calorias: ' + data.calorias);
+          },
+          error: function(error) {
+            console.log('Erro na solicitação AJAX: ' + error);
+          }
+        });
+      });
+      
+      $(document).ready(function() {
+  $('#btnBuscareConfirmar').click(function() {
+    const nomeAlimento = $('#nomeAlimento').val();
+
+    // Faz a solicitação ao servidor Node.js para buscar as calorias
+    $.ajax({
+      url: '/alimentos/pesquisareConfirmar',
+      type: 'GET',
+      dataType: 'json',
+      data: { nome: nomeAlimento },
+      success: function(data) {
+        // Atualiza o elemento com as calorias encontradas
+        $('#resultado').text('Calorias: ' + data.calorias);
+
+        // Envia as calorias consumidas para a rota de consumo
+        const usuarioId = req.usuarioId; // Substitua pelo ID do usuário logado
+        const dataAtual = new Date().toISOString().split('T')[0]; // Data atual no formato YYYY-MM-DD
+        const caloriasConsumidas = data.calorias;
+
+        $.ajax({
+          url: '/alimentos/consumo',
+          type: 'POST',
+          dataType: 'json',
+          data: {
+            usuario_id: usuarioId,
+            data: dataAtual,
+            calorias_consumidas: caloriasConsumidas
+          },
+          success: function(response) {
+            console.log(response); // Se necessário, faça algo com a resposta
+          },
+          error: function(error) {
+            console.log('Erro ao inserir calorias consumidas:', error);
+          }
+        });
+      },
+      error: function(error) {
+        console.log('Erro na solicitação AJAX: ' + error);
+      }
+    });
+  });
+});
+    });
+  </script>
+</head>
 <body>
-    
+  <h1>Contador de Calorias</h1>
+  <input type="text" id="nomeAlimento" placeholder="Nome do alimento">
+  <button id="btnBuscar">Buscar Calorias</button>
+  <button id="btnBuscareConfirmar">Buscar e Confirmar</button>
+  <div id="resultado"></div>
 </body>
-<footer></footer>
 </html>

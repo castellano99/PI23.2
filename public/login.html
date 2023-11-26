@@ -1,7 +1,31 @@
+<!DOCTYPE html>
 <html>
-<head></head>
+<head>
+    <title>Login</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('#formLogin').submit(function(event) {
+        event.preventDefault(); // Impede o envio padrão do formulário
+        const formData = $(this).serialize(); // Obtém os dados do formulário
+        $.post('/usuarios/login', formData, function(response) {
+            console.log(response); // Exibe a resposta no console (para fins de teste)
+            alert('Login bem-sucedido!'); // Pode redirecionar para outra página aqui
+            window.location.href = '/area-de-calculo'; // Redirecionamento para a área de cálculo de calorias
+        }).fail(function(error) {
+            console.log('Erro ao fazer login:', error.responseText);
+            alert('Credenciais inválidas!');
+            });
+        });
+    });
+    </script>
+</head>
 <body>
-    <h1>Página de Login</h1>
+    <h1>Login</h1>
+    <form id="login" action="/usuarios/login" method="post">
+        <input type="email" name="email" placeholder="Email">
+        <input type="password" name="senha" placeholder="Senha">
+        <button type="submit">Login</button>
+    </form>
 </body>
-<footer></footer>
 </html>
