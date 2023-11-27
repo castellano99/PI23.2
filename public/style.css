@@ -1,0 +1,25 @@
+body{
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-family: Tahoma;
+    background-color: #E7E4DD;
+}
+
+.cadastro{
+    margin: 0 auto;
+}
+
+header{
+    background-color: #FFA149;
+}
+
+.contador, .login, .cadastro{
+    background-color: #46BA9A;
+    margin: auto auto;
+}
+
+h1{
+    text-align: center;
+}

@@ -20,8 +20,25 @@ router.post('/login', (req, res) => {
         } else {
             res.status(401).json({ message: 'Credenciais inválidas!' });
         }
-  });
+    });
 });
+
+router.post('/cadastro', (req, res) => {
+    const {nome, email, password, dataNasc} = req.body;
+
+    const sql = 'INSERT INTO usuario (nome, email, senha, dataNascimento) values (?, ?, ?, ?)';
+    connection.query(sql, [nome, email, password, dataNasc], (error, results) => {
+        if(error){
+            console.error('Erro ao executar a consulta SQL:', error);
+            res.status(500).json({ message: 'Erro ao verificar as credenciais.' });
+            return;
+        } 
+        else {
+            res.redirect('/login'); // Redireciona para a página de login após o cadastro
+        }
+    })
+});
+
 
 router.get('/usuario-info', (req, res) => {
     const userId = req.session.userId;
